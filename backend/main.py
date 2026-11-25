@@ -14,8 +14,8 @@ CLOUDFLARE_ACCOUNT_ID = os.getenv("CLOUDFLARE_ACCOUNT_ID", "").strip()
 CLOUDFLARE_API_TOKEN = os.getenv("CLOUDFLARE_API_TOKEN", "").strip()
 
 AI_MODEL = os.getenv(
-    "CLOUDFLARE_AI_MODEL",
-    "@cf/meta/llama-3.1-8b-instruct"
+  "CLOUDFLARE_AI_MODEL",
+  "@cf/meta/llama-3.1-8b-instruct"
 ).strip()
 
 CLOUDFLARE_URL = (
