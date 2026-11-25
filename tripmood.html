@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TripMood — персональный поиск мест</title>
+<style>
+:root{--blue:#1769d2;--blue2:#0f4fa8;--ink:#14243b;--muted:#64748b;--line:#dce5f0;--bg:#f4f7fb;--white:#fff;--pale:#eaf2ff;--green:#16856c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line)}.head{max-width:1160px;margin:auto;padding:17px 24px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:22px;font-weight:850;letter-spacing:-.7px}.brand span{color:var(--blue)}.headnote{font-size:12px;color:var(--muted)}
+main{max-width:1160px;margin:auto;padding:34px 24px 60px}.intro{max-width:720px;margin-bottom:26px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase;color:var(--blue)}h1{font-size:clamp(34px,5vw,52px);line-height:1.1;letter-spacing:-1.9px;margin:8px 0 12px}.intro p{color:var(--muted);font-size:16px;margin:0}
+.layout{display:grid;grid-template-columns:330px 1fr;gap:22px;align-items:start}.panel,.results{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 20px #17345a08}.panel{padding:21px}.panel h2{font-size:17px;margin:0 0 17px}.field{margin-bottom:15px}label{display:block;font-size:12px;font-weight:750;margin-bottom:7px;color:#33445c}
+input,select,textarea{width:100%;border:1px solid #cbd7e5;border-radius:9px;background:#fff;color:var(--ink);padding:11px 12px;font:inherit;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1769d21a}textarea{min-height:84px;resize:vertical}.hint{font-size:11px;color:var(--muted);margin-top:5px}
+.chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.chip{display:flex;align-items:center;justify-content:flex-start;min-height:42px;width:100%;text-align:left;white-space:normal;background:#fff;border:1px solid #cbd7e5;color:#33445c;border-radius:9px;padding:9px 11px;font-size:12px;line-height:1.25;cursor:pointer;transition:background .15s,border-color .15s,box-shadow .15s}.chip:hover{border-color:#8db7ef;background:#f8fbff}.chip.active{background:var(--pale);border-color:var(--blue);color:var(--blue2);font-weight:750;box-shadow:inset 3px 0 0 var(--blue)}
+.primary{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:5px;border:0;border-radius:10px;background:var(--blue);color:white;font-weight:750;padding:13px 18px;font-size:14px;cursor:pointer;transition:background .15s,transform .15s,box-shadow .15s;box-shadow:0 3px 8px #1769d226}.primary:hover{background:var(--blue2);box-shadow:0 5px 12px #1769d233}.primary:active{transform:translateY(1px)}.primary:disabled{opacity:.6;cursor:wait}
+.results{padding:21px;min-height:400px}.results-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:14px}.results-head h2{font-size:21px;margin:4px 0 0}.count{font-size:12px;color:var(--muted)}
+.info{border:1px solid #d8e5f5;background:#f5f9ff;color:#405675;padding:11px 13px;border-radius:9px;font-size:12px;margin-bottom:14px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.place{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.place-top{height:8px;background:linear-gradient(90deg,#1769d2,#66a5ef)}.place-body{padding:14px}.meta{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:10px;color:var(--blue);font-weight:750;text-transform:uppercase;letter-spacing:.5px}.place h3{font-size:16px;line-height:1.3;margin:8px 0 5px}.place p{font-size:12px;color:var(--muted);margin:0 0 11px}.labels{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 10px}.tag{font-size:10px;padding:3px 7px;border-radius:5px;background:#eff4fa;color:#53657c}.tag.discover{background:#e7f5f0;color:#14745f}.links{display:flex;gap:12px;flex-wrap:wrap}.links a{font-size:11px;color:var(--blue);font-weight:700;text-decoration:none}.links a:hover{text-decoration:underline}
+.empty,.loading{grid-column:1/-1;text-align:center;padding:42px 18px;border:1px dashed #cbd7e5;border-radius:12px;color:var(--muted);font-size:13px}.loading{border:0}.spinner{width:24px;height:24px;border:3px solid #dce9f8;border-top-color:var(--blue);border-radius:50%;display:inline-block;animation:spin .7s linear infinite;margin-bottom:10px}@keyframes spin{to{transform:rotate(360deg)}}.foot{margin-top:17px;color:#718096;font-size:11px}
+footer{border-top:1px solid var(--line);background:#fff;color:#718096;font-size:11px;padding:18px 24px}footer div{max-width:1160px;margin:auto}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.cards{grid-template-columns:1fr}main{padding:24px 16px 40px}.head{padding:15px 16px}.headnote{display:none}.results{padding:16px}}@media(max-width:380px){.chips{grid-template-columns:1fr}.chip{min-height:40px}}
+</style></head>
+<body>
+<header><div class="head"><div class="brand">Trip<span>Mood</span></div><div class="headnote">ПЕРСОНАЛЬНЫЙ ПОИСК МЕСТ ДЛЯ ПУТЕШЕСТВИЙ</div></div></header>
+<main>
+<section class="intro"><div class="eyebrow">Travel discovery platform</div><h1>Откройте места,<br>которые подходят именно вам.</h1><p>Укажите направление и интересы. TripMood соберёт подборку реальных локаций — от известных достопримечательностей до менее очевидных мест, которые легко пропустить.</p></section>
+<div class="layout">
+<aside class="panel">
+<h2>Параметры поиска</h2>
+<div class="field"><label for="country">Страна</label><select id="country"><option>Франция</option><option>Италия</option><option>Испания</option><option>Япония</option><option>Турция</option><option>США</option><option>Португалия</option><option>Германия</option><option>Греция</option><option>Таиланд</option><option>Россия</option></select></div>
+<div class="field"><label for="city">Город</label><select id="city"></select><div class="hint">Список городов автоматически меняется при выборе страны.</div></div>
+<div class="field"><label>Категории интересов</label><div class="chips" id="chips"><button class="chip active" data-v="views">Панорамные виды</button><button class="chip" data-v="hidden">Необычные места</button><button class="chip" data-v="party">Ночная жизнь</button><button class="chip" data-v="food">Кафе и рестораны</button><button class="chip" data-v="culture">Культура и история</button><button class="chip" data-v="nature">Природа</button><button class="chip" data-v="art">Искусство</button><button class="chip" data-v="active">Активный отдых</button></div></div>
+<div class="field"><label for="prompt">Дополнительные пожелания</label><textarea id="prompt" placeholder="Например: локальные бары, места для фотографий, минимум туристов..."></textarea></div>
+<div class="field"><label for="radius">Область поиска</label><select id="radius"><option value="4">До 4 км</option><option value="8" selected>До 8 км</option><option value="15">До 15 км</option><option value="25">До 25 км</option></select></div>
+<button class="primary" id="search">Найти подходящие места</button>
+<div class="hint" style="margin-top:9px">ИИ анализирует ваш запрос и выбирает категории поиска. Затем реальные объекты загружаются из OpenStreetMap. Поиск выполняется через онлайн-сервер TripMood AI.</div>
+</aside>
+<section class="results">
+<div class="results-head"><div><div class="eyebrow">Результаты</div><h2 id="heading">Подборка пока не создана</h2></div><div class="count" id="count">—</div></div>
+<div class="info" id="notice">Выберите страну, город и интересы. Сначала ИИ разберёт пожелания, затем сайт найдёт реальные места на OpenStreetMap.</div>
+<div class="cards" id="cards"><div class="empty">Здесь появятся найденные места и ссылки на их расположение.</div></div>
+<div class="foot">Обратите внимание: полнота данных зависит от выбранного региона и активности участников OpenStreetMap. Не все небольшие заведения и локации отмечены на карте.</div>
+</section></div>
+<section class="ai-panel" aria-label="ИИ-помощник TripMood">
+  <div class="ai-head">
+    <div><div class="eyebrow">Облачный искусственный интеллект</div><h2>TripMood AI-помощник</h2></div>
+    <span class="ai-status"><i></i> Работает на сервере TripMood</span>
+  </div>
+  <p class="ai-sub">ИИ понимает ваши пожелания, выбирает категории поиска и помогает найти реальные места. Поиск выполняется по данным OpenStreetMap, а не по выдуманному списку.</p>
+  <div class="ai-messages" id="aiMessages"><div class="ai-msg bot">Привет! Я помогу спланировать поездку. Например: «Что необычного посмотреть в Париже за один день?»</div></div>
+  <div class="ai-compose">
+    <textarea id="aiInput" rows="2" placeholder="Напиши свой вопрос о путешествии..."></textarea>
+    <button class="primary ai-send" id="aiSend">Спросить ИИ</button>
+  </div>
+  <div class="hint">Нейросеть работает на облачном сервере. Устанавливать приложения на устройство не требуется; места загружаются из OpenStreetMap.</div>
+</section>
+<style>
+.ai-panel{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:21px;box-shadow:0 5px 20px #17345a08}
+.ai-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.ai-head h2{font-size:21px;margin:4px 0 0}
+.ai-status{font-size:11px;color:#16856c;white-space:nowrap}.ai-status i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#20a77e;margin-right:5px}
+.ai-sub{font-size:13px;color:var(--muted);margin:10px 0 14px}
+.ai-messages{display:flex;flex-direction:column;gap:9px;max-height:300px;overflow:auto;padding:12px;background:#f7faff;border:1px solid var(--line);border-radius:11px}
+.ai-msg{max-width:88%;padding:10px 12px;border-radius:11px;font-size:13px;white-space:pre-wrap;line-height:1.5}
+.ai-msg.bot{align-self:flex-start;background:#fff;border:1px solid #dce5f0}
+.ai-msg.user{align-self:flex-end;background:#eaf2ff;color:#174f9c}
+.ai-compose{display:grid;grid-template-columns:1fr 150px;gap:9px;margin-top:10px;align-items:stretch}
+.ai-compose textarea{min-height:48px;max-height:120px;resize:vertical}
+.ai-send{margin:0;min-height:48px}
+@media(max-width:600px){.ai-head{align-items:flex-start;flex-direction:column}.ai-compose{grid-template-columns:1fr}.ai-send{width:100%}}
+</style>
+
+</main>
+<footer><div>TripMood · Исследуйте осознанно. Данные карты: © OpenStreetMap contributors. Проверяйте часы работы, доступность и актуальную информацию перед посещением.</div></footer>
+<script>
+
+const $=id=>document.getElementById(id), chosen=new Set(['views']);
+const citiesByCountry={
+ 'Франция':['Париж','Марсель','Лион','Ницца','Бордо','Тулуза','Страсбург','Лилль','Канны','Монпелье'],
+ 'Италия':['Рим','Милан','Венеция','Флоренция','Неаполь','Болонья','Турин','Верона','Пиза','Палермо'],
+ 'Испания':['Мадрид','Барселона','Валенсия','Севилья','Малага','Гранада','Бильбао','Сан-Себастьян','Пальма-де-Майорка'],
+ 'Япония':['Токио','Киото','Осака','Хиросима','Нара','Саппоро','Йокогама','Кобе','Фукуока'],
+ 'Турция':['Стамбул','Анталья','Измир','Анкара','Бодрум','Каппадокия','Фетхие','Аланья'],
+ 'США':['Нью-Йорк','Лос-Анджелес','Сан-Франциско','Чикаго','Майами','Лас-Вегас','Сиэтл','Бостон','Вашингтон'],
+ 'Португалия':['Лиссабон','Порту','Синтра','Фару','Коимбра','Брага','Кашкайш'],
+ 'Германия':['Берлин','Мюнхен','Гамбург','Кёльн','Франкфурт','Дрезден','Штутгарт','Лейпциг'],
+ 'Греция':['Афины','Салоники','Ираклион','Ханья','Родос','Корфу','Патры'],
+ 'Таиланд':['Бангкок','Пхукет','Чиангмай','Паттайя','Краби','Аюттхая','Самуи'],
+ 'Россия':['Москва','Санкт-Петербург','Казань','Сочи','Калининград','Екатеринбург','Нижний Новгород','Владивосток','Новосибирск']
+};
+function updateCities(){
+ const country=$('country').value, select=$('city'), values=citiesByCountry[country]||[];
+ select.innerHTML='';
+ values.forEach((city,i)=>{const option=document.createElement('option');option.value=city;option.textContent=city;select.appendChild(option)});
+}
+$('country').addEventListener('change',updateCities);
+updateCities();
+
+document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{let v=b.dataset.v;if(chosen.has(v)){chosen.delete(v);b.classList.remove('active')}else{chosen.add(v);b.classList.add('active')}}));
+function selectors(categorySet=chosen){let a=[];if(categorySet.has('views'))a.push('nwr["tourism"="viewpoint"];','nwr["natural"~"peak|cliff|beach"];');if(categorySet.has('hidden'))a.push('nwr["tourism"~"artwork|gallery|attraction"];','nwr["historic"];','nwr["leisure"~"garden|park"];');if(categorySet.has('party'))a.push('nwr["amenity"~"bar|pub|nightclub"];');if(categorySet.has('food'))a.push('nwr["amenity"~"cafe|restaurant|marketplace"];');if(categorySet.has('culture'))a.push('nwr["tourism"~"museum|gallery"];','nwr["historic"];');if(categorySet.has('nature'))a.push('nwr["leisure"~"park|garden"];','nwr["natural"];');if(categorySet.has('art'))a.push('nwr["tourism"~"artwork|gallery"];');if(categorySet.has('active'))a.push('nwr["leisure"~"sports_centre|sports_hall"];','nwr["sport"];');return [...new Set(a)].join('')}
+function kind(t){if(t.tourism==='viewpoint')return 'Смотровая площадка';if(t.tourism==='museum')return 'Музей';if(t.tourism==='gallery'||t.tourism==='artwork')return 'Искусство';if(t.amenity==='nightclub')return 'Ночной клуб';if(t.amenity==='bar'||t.amenity==='pub')return 'Бар';if(t.amenity==='cafe')return 'Кафе';if(t.amenity==='restaurant')return 'Ресторан';if(t.leisure==='park'||t.leisure==='garden')return 'Парк или сад';if(t.historic)return 'Историческое место';if(t.natural)return 'Природная локация';return 'Интересное место'}
+function score(t,words){let s=0;if(chosen.has('views')&&t.tourism==='viewpoint')s+=8;if(chosen.has('hidden')&&(t.tourism==='artwork'||t.tourism==='gallery'||t.historic||t.leisure==='garden'))s+=8;if(chosen.has('party')&&['bar','pub','nightclub'].includes(t.amenity))s+=8;if(chosen.has('food')&&['cafe','restaurant','marketplace'].includes(t.amenity))s+=7;if(chosen.has('culture')&&(t.tourism==='museum'||t.historic))s+=7;if(chosen.has('nature')&&(t.natural||['park','garden'].includes(t.leisure)))s+=7;if(chosen.has('art')&&['artwork','gallery'].includes(t.tourism))s+=7;if(chosen.has('active')&&(t.sport||t.leisure==='sports_centre'))s+=6;if(t.name)s+=1;let hay=Object.values(t).join(' ').toLowerCase();words.forEach(w=>{if(hay.includes(w))s+=2});return s}
+function esc(x){return String(x||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function fetchJson(url,options={},ms=9000){let controller=new AbortController(),timer=setTimeout(()=>controller.abort(),ms);try{let r=await fetch(url,{...options,signal:controller.signal});if(!r.ok)throw Error('Источник данных временно недоступен ('+r.status+').');return await r.json()}finally{clearTimeout(timer)}}
+async function searchPlaces(){let city=$('city').value.trim(),country=$('country').value,prompt=$('prompt').value.trim(),radius=Number($('radius').value),btn=$('search'),cards=$('cards');
+async function getAIPlan(city,country,prompt){
+ const response=await fetch('/api/search-plan',{
+  method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({city,country,prompt,selected_categories:[...chosen]})
+ });
+ const data=await response.json();
+ if(!response.ok)throw new Error(data.detail||data.error||'ИИ не смог разобрать запрос.');
+ if(!Array.isArray(data.categories)||!data.categories.length)throw new Error('ИИ не выбрал категории поиска. Попробуйте уточнить пожелания.');
+ return data;
+}
+if(!city){$('notice').textContent='Введите город или регион.';return}if(!chosen.size&&!prompt){$('notice').textContent='Выберите хотя бы одну категорию или добавьте пожелания.';return}
+btn.disabled=true;btn.textContent='Выполняется поиск…';$('heading').textContent='Поиск: '+city;$('count').textContent='Загрузка';$('notice').textContent='ИИ анализирует пожелания и выбирает категории, затем ищет реальные объекты на карте.';cards.innerHTML='<div class="loading"><span class="spinner"></span><br>Поиск мест в выбранном регионе…</div>';
+try{
+const plan=await getAIPlan(city,country,prompt);
+const aiCategories=new Set(plan.categories);
+$('notice').textContent='ИИ выбрал: '+(plan.categories.join(', '))+'. Ищем реальные места в OpenStreetMap…';
+const geos=await fetchJson('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(city+', '+country),{'headers':{'Accept-Language':'ru,en'}},7000);if(!geos.length)throw Error('Не удалось найти город. Попробуйте выбрать другой город.');
+const g=geos[0],lat=+g.lat,lon=+g.lon,dy=radius/111,dx=radius/(111*Math.max(.25,Math.cos(lat*Math.PI/180))),bbox=[lat-dy,lon-dx,lat+dy,lon+dx],sel=selectors(aiCategories);
+let extra='';if(/бар|клуб|вечерин|ночн|тусов/i.test(prompt))extra+='nwr["amenity"~"bar|pub|nightclub"];';if(/вид|панорам|закат|фото/i.test(prompt))extra+='nwr["tourism"="viewpoint"];';if(/кафе|еда|ресторан/i.test(prompt))extra+='nwr["amenity"~"cafe|restaurant"];';if(/природ|парк|лес|сад/i.test(prompt))extra+='nwr["leisure"~"park|garden"];';if(/музей|истор|архитект/i.test(prompt))extra+='nwr["historic"];nwr["tourism"="museum"];';
+const query='[out:json][timeout:12];('+sel+extra+')('+bbox.join(',')+');out center tags 65;';
+const data=await fetchJson('https://overpass.kumi.systems/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:'data='+encodeURIComponent(query)},15000);
+let seen=new Set(),words=prompt.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(w=>w.length>3),list=[];
+for(const e of(data.elements||[])){let t=e.tags||{},name=t.name||t['name:en']||t['name:ru'];if(!name)continue;let k=name.toLowerCase()+'|'+e.id;if(seen.has(k))continue;seen.add(k);let la=e.lat??e.center?.lat,lo=e.lon??e.center?.lon;if(!Number.isFinite(la)||!Number.isFinite(lo))continue;list.push({name,t,lat:la,lon:lo,id:e.id,type:e.type,score:score(t,words)})}
+list.sort((a,b)=>b.score-a.score);
+if(!list.length){cards.innerHTML='<div class="empty">В этой области не найдено объектов с названиями по выбранным категориям. Увеличьте радиус или измените интересы.</div>'}
+else{cards.innerHTML='';list.slice(0,30).forEach(p=>{let hidden=['artwork','gallery'].includes(p.t.tourism)||!!p.t.historic||p.t.leisure==='garden',map='https://www.openstreetmap.org/?mlat='+p.lat+'&mlon='+p.lon+'#map=17/'+p.lat+'/'+p.lon,osm='https://www.openstreetmap.org/'+p.type+'/'+p.id,description=p.t.description||p.t['description:ru']||p.t['description:en']||kind(p.t);let el=document.createElement('article');el.className='place';el.innerHTML='<div class="place-top"></div><div class="place-body"><div class="meta"><span>'+esc(kind(p.t))+'</span><span>'+esc(g.name.split(',')[0])+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(description)+'</p><div class="labels">'+(hidden?'<span class="tag discover">Возможное открытие</span>':'')+'<span class="tag">OpenStreetMap</span></div><div class="links"><a target="_blank" rel="noopener" href="'+map+'">Посмотреть на карте ↗</a><a target="_blank" rel="noopener" href="'+osm+'">Данные об объекте ↗</a></div></div>';cards.appendChild(el)})}
+$('heading').textContent='Места в '+g.name.split(',')[0];$('count').textContent=list.length+' найдено';$('notice').textContent='ИИ выбрал категории: '+plan.categories.join(', ')+'. Найдено '+list.length+' реальных объектов. Сначала показаны наиболее подходящие по категориям и пожеланиям.';
+}catch(e){let msg=e.name==='AbortError'?'Сервис поиска не ответил вовремя. Попробуйте ещё раз или уменьшите радиус.':e.message;cards.innerHTML='<div class="empty"><b>Не удалось завершить поиск</b><br>'+esc(msg)+'</div>';$('count').textContent='Ошибка';$('notice').textContent='Проверьте подключение к интернету и повторите попытку.'}
+finally{btn.disabled=false;btn.textContent='Найти подходящие места'}}
+$('search').addEventListener('click',searchPlaces);$('city').addEventListener('keydown',e=>{if(e.key==='Enter')searchPlaces()});
+
+async function sendAI(){
+  const input=$('aiInput'), button=$('aiSend'), box=$('aiMessages'), message=input.value.trim();
+  if(!message)return;
+  const add=(text,cls)=>{const el=document.createElement('div');el.className='ai-msg '+cls;el.textContent=text;box.appendChild(el);box.scrollTop=box.scrollHeight;return el};
+  add(message,'user');input.value='';button.disabled=true;button.textContent='Думаю…';
+  const pending=add('Подбираю ответ…','bot');
+  try{
+    const response=await fetch('/api/chat',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message})
+    });
+    const data=await response.json();
+    if(!response.ok||data.error)throw new Error(data.error||'Ошибка сервера');
+    pending.textContent=data.answer||'Не удалось получить ответ.';
+  }catch(err){
+    pending.textContent='Не удалось подключиться к ИИ. Проверьте подключение к интернету и доступность сервера TripMood. Подробности: '+err.message;
+  }finally{button.disabled=false;button.textContent='Спросить ИИ';box.scrollTop=box.scrollHeight}
+}
+$('aiSend').addEventListener('click',sendAI);
+$('aiInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI()}});
+
+</script></body></html>
