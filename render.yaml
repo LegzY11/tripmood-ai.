@@ -1,3 +1,4 @@
+
 services:
   - type: web
     name: tripmood-ai
@@ -7,7 +8,9 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: GEMINI_API_KEY
+      - key: CLOUDFLARE_ACCOUNT_ID
         sync: false
-      - key: GEMINI_MODEL
-        value: gemini-3.8-flash
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_AI_MODEL
+        value: "@cf/meta/llama-3.1-8b-instruct"
